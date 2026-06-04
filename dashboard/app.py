@@ -1,8 +1,8 @@
 import sys
 import streamlit as st
 import matplotlib.pyplot as plt
-
-sys.path.append('/Users/seunghoham/Desktop/python/yield_curve_analysis')
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from analysis.metrics import get_yield_data, calculate_spread, calculate_zscore, get_recession_data
 from fredapi import Fred
 
