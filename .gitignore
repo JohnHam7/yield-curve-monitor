@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .DS_Store
 dashboard/.streamlit/secrets.toml
+.ipynb_checkpoints/
+notebooks/
+analysis/Project1.ipynb
+analysis/Untitled.ipynb
