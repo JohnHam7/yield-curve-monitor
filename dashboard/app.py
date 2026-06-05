@@ -23,66 +23,61 @@ def load_data():
 
 curve_df, recession = load_data()
 
-latest = curve_df.iloc[-1]
+with st.sidebar:
+    st.header('Settings')
+    start_year = st.slider('Start Year', 2000, 2024, 2000)
 
-col1, col2, col3 = st.columns(3)
-col1.metric('2s10s Spread', f"{latest['spread']:.2f}%p")
-col2.metric('Z-Score', f"{latest['z_score']:.2f}")
-col3.metric('Inverted', '🔴 Yes' if latest['inverted'] else '🟢 No')
-st.divider()
-st.subheader('2s10s Yield Spread & NBER Recessions')
+df_filtered = curve_df[curve_df.index.year >= start_year]
+recession_filtered = recession[recession.index.year >= start_year]
 
 fig1, ax1 = plt.subplots(figsize=(14, 4))
-ax1.fill_between(curve_df.index, curve_df['spread'].min() - 0.2, curve_df['spread'].max() + 0.2,
-                 where=recession.reindex(curve_df.index).fillna(0) == 1,
+ax1.fill_between(df_filtered.index, df_filtered['spread'].min() - 0.2, df_filtered['spread'].max() + 0.2,
+                 where=recession_filtered.reindex(df_filtered.index).fillna(0) == 1,
                  color='gray', alpha=0.2, label='Recession (NBER)')
-ax1.plot(curve_df.index, curve_df['spread'], color='steelblue', linewidth=1.2, label='2s10s Spread')
-ax1.fill_between(curve_df.index, curve_df['spread'], 0,
-                 where=curve_df['inverted'], color='red', alpha=0.3, label='Inversion')
+ax1.plot(df_filtered.index, df_filtered['spread'], color='steelblue', linewidth=1.2, label='2s10s Spread')
+ax1.fill_between(df_filtered.index, df_filtered['spread'], 0,
+                 where=df_filtered['inverted'], color='red', alpha=0.3, label='Inversion')
 ax1.axhline(0, color='black', linewidth=0.8, linestyle='--')
 ax1.set_ylabel('Spread (%p)')
 ax1.legend(fontsize=8)
 ax1.grid(True, alpha=0.3)
 st.pyplot(fig1)
-
-st.divider()
-
-st.subheader('Z-Score (24M Rolling)')
+plt.close(fig1)
 
 fig2, ax2 = plt.subplots(figsize=(14, 3))
-ax2.plot(curve_df.index, curve_df['z_score'], color='purple', linewidth=1.2, label='Z-Score')
+ax2.plot(df_filtered.index, df_filtered['z_score'], color='purple', linewidth=1.2, label='Z-Score')
 ax2.axhline(2, color='red', linewidth=0.8, linestyle='--', label='±2 Threshold')
 ax2.axhline(-2, color='red', linewidth=0.8, linestyle='--')
 ax2.axhline(0, color='black', linewidth=0.8, alpha=0.3)
-ax2.fill_between(curve_df.index, curve_df['z_score'], 2,
-                 where=curve_df['z_score'] > 2, color='red', alpha=0.2, label='Anomaly')
-ax2.fill_between(curve_df.index, curve_df['z_score'], -2,
-                 where=curve_df['z_score'] < -2, color='red', alpha=0.2)
+ax2.fill_between(df_filtered.index, df_filtered['z_score'], 2,
+                 where=df_filtered['z_score'] > 2, color='red', alpha=0.2, label='Anomaly')
+ax2.fill_between(df_filtered.index, df_filtered['z_score'], -2,
+                 where=df_filtered['z_score'] < -2, color='red', alpha=0.2)
 ax2.set_ylabel('Z-Score')
+ax2.set_xlabel('Date')
 ax2.legend(fontsize=8)
 ax2.grid(True, alpha=0.3)
 st.pyplot(fig2)
+plt.close(fig2)
 
-st.divider()
-
-st.subheader('Yield Curve Shape Comparison')
-
+available_dates = curve_df.index.strftime('%Y-%m-%d').tolist()
 maturity_labels = ['3M', '1Y', '2Y', '5Y', '7Y', '10Y', '20Y', '30Y']
 
-dates = {
-    'Jan 2021 (Normal)': '2021-01-01',
-    'Oct 2022 (Flat)': '2022-10-01',
-    'Jul 2023 (Inverted)': '2023-07-01',
-    'May 2026 (Current)': '2026-05-01',
-}
-colors = ['steelblue', 'orange', 'red', 'green']
+col1, col2 = st.columns(2)
+with col1:
+    date1 = st.selectbox('Date 1', available_dates, index=available_dates.index('2021-01-01'))
+    date2 = st.selectbox('Date 2', available_dates, index=available_dates.index('2022-10-01'))
+with col2:
+    date3 = st.selectbox('Date 3', available_dates, index=available_dates.index('2023-07-01'))
+    date4 = st.selectbox('Date 4', available_dates, index=len(available_dates) - 1)
+
+selected = {date1: 'steelblue', date2: 'orange', date3: 'red', date4: 'green'}
 
 fig3, ax3 = plt.subplots(figsize=(10, 5))
-
-for (label, date), color in zip(dates.items(), colors):
+for date, color in selected.items():
     row = curve_df.loc[date]
     ax3.plot(maturity_labels, row[maturity_labels], marker='o',
-             label=label, color=color, linewidth=2)
+             label=date, color=color, linewidth=2)
 
 ax3.set_xlabel('Maturity')
 ax3.set_ylabel('Yield (%)')
