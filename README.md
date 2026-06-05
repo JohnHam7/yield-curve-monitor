@@ -34,18 +34,17 @@ The 2s10s spread (10Y minus 2Y Treasury yield) is one of the most widely tracked
 | Streamlit | Interactive dashboard & deployment |
 
 ---
-
 ## Project Structure
 
-yield-curve-monitor/
-├── analysis/
-│   └── metrics.py        # Core analysis functions
-├── dashboard/
-│   └── app.py            # Streamlit dashboard
-├── notebooks/
-│   └── analysis.ipynb    # Exploratory analysis
-├── requirements.txt
-└── README.md
+    yield-curve-monitor/
+    ├── analysis/
+    │   └── metrics.py        # Core analysis functions
+    ├── dashboard/
+    │   └── app.py            # Streamlit dashboard
+    ├── notebooks/
+    │   └── analysis.ipynb    # Exploratory analysis
+    ├── requirements.txt
+    └── README.md
 ---
 
 ## Key Findings
